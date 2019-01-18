@@ -35,6 +35,7 @@ mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
 resistance = 1000
 voltage = 3.3
 scale = voltage/1024
+number = 0
 
 
 try:
@@ -43,23 +44,30 @@ try:
     # Main program loop.
     while True:
         # Read all the ADC channel values in a list.
-        values = [0]*8
+        #values = [0]*8
         sol = mcp.read_adc(3)
+
+        #conversions
         volt = round(sol * scale, 3)
         amp = round((sol*scale)/resistance, 10)
         mamp = round((volt/resistance)*resistance, 3)
         watt = round(volt*mamp, 3)
 
 
+        #firebase database push
         data.child("values").update({"Voltage": volt})
         data.child("values").update({"Amps": amp})
         data.child("values").update({"mA": mamp})
         data.child("values").update({"Watts": watt})
+        data.child("table").set({str(number): volt})
 
         print(sol, " | ", volt, " | ", mamp," | ", watt," | ")
 
         # Pause for 10 seconds
         time.sleep(10)
+
+        #increment index
+        number+= 1
 except(KeyboardInterrupt, SystemExit):
     print("\nExit")
 except:
