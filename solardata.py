@@ -1,3 +1,6 @@
+# Author: Boss Bitch adapted from Tony
+# License: Public Domain
+
 import pyrebase
 
 config = {
@@ -15,8 +18,7 @@ data = firebase.database()
 
 #data.child("values").update({"channel1": 24})
 
-# Author: Tony DiCola
-# License: Public Domain
+
 import time
 
 # Import SPI library (for hardware SPI) and MCP3008 library.
@@ -29,7 +31,10 @@ SPI_PORT   = 0
 SPI_DEVICE = 0
 mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
 
-
+#config
+resistance = 1000
+voltage = 3.3
+scale = voltage/1024
 
 
 try:
@@ -40,12 +45,18 @@ try:
         # Read all the ADC channel values in a list.
         values = [0]*8
         sol = mcp.read_adc(3)
-        amp = sol/
+        volt = round(sol * scale, 3)
+        amp = round((sol*scale)/resistance, 10)
+        mamp = round((volt/resistance)*resistance, 3)
+        watt = round(volt*mamp, 3)
 
 
-        data.child("values").update({"Voltage": sol})
+        data.child("values").update({"Voltage": volt})
+        data.child("values").update({"Amps": amp})
+        data.child("values").update({"mA": mamp})
+        data.child("values").update({"Watts": watt})
 
-        print(sol)
+        print(sol, " | ", volt, " | ", mamp," | ", watt," | ")
 
         # Pause for 10 seconds
         time.sleep(10)
@@ -53,27 +64,3 @@ except(KeyboardInterrupt, SystemExit):
     print("\nExit")
 except:
     print("Error")
-
-
-'''
-try:
-    print('Reading MCP3008 values, press Ctrl-C to quit...')
-    # Print nice channel column headers.
-    print('| {0:>4} | {1:>4} | {2:>4} | {3:>4} | {4:>4} | {5:>4} | {6:>4} | {7:$
-    print('-' * 57)
-    # Main program loop.
-    while True:
-        # Read all the ADC channel values in a list.
-        values = [0]*8
-         for i in range(8):
-            # The read_adc function will get the value of the specified channel$
-            values[i] = mcp.read_adc(i)
-        # Print the ADC values.
-        print('| {0:>4} | {1:>4} | {2:>4} | {3:>4} | {4:>4} | {5:>4} | {6:>4} |$
-        # Pause for half a second.
-        time.sleep(0.5)
-except(KeyboardInterrupt, SystemExit):
-    print("\nExit")
-except:
-    print("Error")
-'''
