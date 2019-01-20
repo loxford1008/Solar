@@ -2,6 +2,13 @@
 # License: Public Domain
 
 import pyrebase
+import datetime
+import time
+
+# Import SPI library (for hardware SPI) and MCP3008 library.
+import Adafruit_GPIO.SPI as SPI
+import Adafruit_MCP3008
+
 
 config = {
     "apiKey": "AIzaSyCmODvamnVf-R6enIcMo5gW4qjMWarSZUQ",
@@ -15,15 +22,6 @@ config = {
 firebase = pyrebase.initialize_app(config)
 
 data = firebase.database()
-
-#data.child("values").update({"channel1": 24})
-
-
-import time
-
-# Import SPI library (for hardware SPI) and MCP3008 library.
-import Adafruit_GPIO.SPI as SPI
-import Adafruit_MCP3008
 
 
 # Hardware SPI configuration:
@@ -43,10 +41,13 @@ try:
     # Print nice channel column headers.
    # Main program loop.
     print("Sol" " | " "volt"  " | " "mapmp" " | " "watt" " | ")
+    # Main program loop.
+    loops = 0
 
     while True:
         # Read all the ADC channel values in a list.
         #values = [0]*8
+        loops+=1
         sol = mcp.read_adc(3)
 
         #conversions
@@ -61,9 +62,15 @@ try:
         data.child("values").update({"Amps": amp})
         data.child("values").update({"mA": mamp})
         data.child("values").update({"Watts": watt})
-        data.child("table").set({str(number): volt})
+
 
         print(sol, " | ", volt, " | ", mamp," | ", watt," | ")
+
+        if loops == 6:
+            data.child("table").push(volt)
+            data.child("time").push(datetime.datetime.now().strftime("%H:%M"))
+            loops = 0
+
 
         # Pause for 10 seconds
         time.sleep(10)
