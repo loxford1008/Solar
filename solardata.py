@@ -32,7 +32,7 @@ SPI_DEVICE = 0
 mcp = Adafruit_MCP3008.MCP3008(spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE))
 
 #config
-resistance = 1000
+resistance = 30.1
 voltage = 3.3
 scale = voltage/1024
 number = 0
@@ -41,7 +41,9 @@ number = 0
 try:
     print('Reading MCP3008 values, press Ctrl-C to quit...')
     # Print nice channel column headers.
-    # Main program loop.
+   # Main program loop.
+    print("Sol" " | " "volt"  " | " "mapmp" " | " "watt" " | ")
+
     while True:
         # Read all the ADC channel values in a list.
         #values = [0]*8
